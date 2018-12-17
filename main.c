@@ -1,6 +1,8 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include  <sys/types.h>
+#include  <sys/wait.h>
 
 #include  <unistd.h>
 #include <malloc.h>
@@ -27,7 +29,7 @@ char **str_split(char *a_str, const char a_delim) {
     count += last_comma < (a_str + strlen(a_str) - 1);
 
     /* Add space for terminating null string so caller
-       knows where the list of returned strings ends. */
+    knows where the list of returned strings ends. */
     count++;
 
     result = malloc(sizeof(char *) * count);
@@ -37,31 +39,49 @@ char **str_split(char *a_str, const char a_delim) {
         char *token = strtok(a_str, delim);
 
         while (token) {
+
             *(result + idx++) = strdup(token);
             token = strtok(0, delim);
         }
-        *(result + idx) = 0;
+        *(result + idx) = NULL;
+
     }
 
     return result;
 }
 
+char *cli_read_line(void)
+{
+    char *line = NULL;
+    ssize_t bufsize = 0;
+    getline(&line, &bufsize, stdin);
+    return line;
+}
 int main() {
-    char input[] = "";
     printf("cmd> ");
-    scanf("%99[0-9a-zA-Z ]", input);
+    char* input = cli_read_line();
 
-    char **s = str_split(input, ' ');
+    char **argv = str_split(input, ' ');
+    free(input);
 
     pid_t  pid;
 
-//    pid = fork();
-//
-//    if (!pid) {
-//        excv(prog2)
-//    }
-//    waitpid()
+    pid = fork();
 
-//free input
+    if (pid == 0) {
+        execv(argv[0], argv);
+        printf("son\n");
+        exit(0);
+    } else {
+
+        int x, i = 0;
+        waitpid(pid, &x, 0);
+        while(argv[i]){
+            free(argv[i++]);
+        }
+        free(argv);
+
+    }
+
     return 0;
 }
