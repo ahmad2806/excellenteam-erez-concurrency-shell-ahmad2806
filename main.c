@@ -32,7 +32,7 @@ char **str_split(char *a_str, const char a_delim) {
     knows where the list of returned strings ends. */
     count++;
 
-    result = malloc(sizeof(char *) * count);
+    result =(char **) malloc(sizeof(char *) * count);
 
     if (result) {
         size_t idx = 0;
@@ -53,7 +53,7 @@ char **str_split(char *a_str, const char a_delim) {
 char *cli_read_line(void)
 {
     char *line = NULL;
-    ssize_t bufsize = 0;
+    size_t bufsize = 0;
     getline(&line, &bufsize, stdin);
     return line;
 }
@@ -68,11 +68,9 @@ int main() {
 
     pid = fork();
 
-    if (pid == 0) {
+    if (pid == 0)
         execv(argv[0], argv);
-        printf("son\n");
-        exit(0);
-    } else {
+    else {
 
         int x, i = 0;
         waitpid(pid, &x, 0);
